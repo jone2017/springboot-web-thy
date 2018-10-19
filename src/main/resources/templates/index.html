@@ -4,10 +4,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" th:href="@{/jquery.min.js}">
+    <script th:src="@{/jquery.min.js}" type="text/javascript"></script>
     <title>Title</title>
 </head>
 <body>
-helloworld
+<div id="content">
+
+</div>
 </body>
+<script>
+    if(typeof(WebSocket) == "undefined") {
+        console.log("您的浏览器不支持WebSocket");
+    }else{
+        console.log("您的浏览器支持WebSocket");
+    }
+    var socket = new WebSocket("ws://localhost:9000/face");
+    socket.onopen = function() {
+        console.log("Socket 已打开");
+        //socket.send("这是来自客户端的消息" + location.href + new Date());
+    };
+    //获得消息事件
+    socket.onmessage = function(msg) {
+        //console.log(msg.data);
+        //发现消息进入    调后台获取
+        //getCallingList();
+        var json = JSON.parse(msg.data);
+
+        $("#content").html("");
+        $("#content").append("<img src='"+json.faceimage+"' />");
+        $("#content").append("<p>年龄："+json.age+"</p>");
+        $("#content").append("<p>性别："+json.sex+"</p>");
+    };
+    //关闭事件
+    socket.onclose = function() {
+        console.log("Socket已关闭");
+    };
+    //发生了错误事件
+    socket.onerror = function() {
+        alert("Socket发生了错误");
+    }
+
+
+    $("#btnSend").click(function() {
+        socket.send("这是来自客户端的消息" + location.href + new Date());
+    });
+
+    $("#btnClose").click(function() {
+        socket.close();
+    });
+
+</script>
 </html>
